@@ -12,16 +12,20 @@ exports.signup = async (req, res, next) => {
     error.data = errors.array();
     throw error;
   }
-  const email = req.body.email;
-  const name = req.body.name;
+  const username = req.body.username;
+  const fullname = req.body.fullname;
   const password = req.body.password;
+  const confirmPassword = req.body.confirmpassword;
+
   try {
     const hashedPw = await bcrypt.hash(password, 12);
+    const confirmHashedPw = await bcrypt.hash(password, 12);
 
     const user = new User({
-      email: email,
+      username: username,
       password: hashedPw,
-      name: name
+      fullname: fullname,
+      confirmpassword: confirmHashedPw
     });
     const result = await user.save();
     res.status(201).json({ message: 'User created!', userId: result._id });
@@ -34,11 +38,11 @@ exports.signup = async (req, res, next) => {
 };
 
 exports.login = async (req, res, next) => {
-  const email = req.body.email;
+  const username = req.body.username;
   const password = req.body.password;
   let loadedUser;
   try {
-    const user = await User.findOne({ email: email });
+    const user = await User.findOne({ username: username });
     if (!user) {
       const error = new Error('A user with this email could not be found.');
       error.statusCode = 401;
@@ -53,7 +57,7 @@ exports.login = async (req, res, next) => {
     }
     const token = jwt.sign(
       {
-        email: loadedUser.email,
+        username: loadedUser.username,
         userId: loadedUser._id.toString()
       },
       'somesupersecretsecret',

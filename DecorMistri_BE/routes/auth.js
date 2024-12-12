@@ -10,11 +10,11 @@ const router = express.Router();
 router.put(
   '/signup',
   [
-    body('email')
+    body('username')
       .isEmail()
       .withMessage('Please enter a valid email.')
       .custom(async (value, { req }) => {
-        const userDoc = await User.findOne({ email: value });
+        const userDoc = await User.findOne({ username: value });
         console.log(value);
         console.log(userDoc);
         if (userDoc){
@@ -25,7 +25,10 @@ router.put(
     body('password')
       .trim()
       .isLength({ min: 5 }),
-    body('name')
+    body('confirmpassword')
+      .trim()
+      .isLength({ min: 5 }),
+    body('fullname')
       .trim()
       .not()
       .isEmpty()
